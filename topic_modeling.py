@@ -20,6 +20,7 @@ import logging
 import pickle
 import pyLDAvis.gensim_models as gensimvis
 import pyLDAvis
+import pyLDAvis.gensim
 from gensim.models.coherencemodel import CoherenceModel
 import matplotlib.pyplot as plt
 
@@ -40,21 +41,37 @@ config = {
 conn_dest = mysql.connector.connect(**config)
 cursor_dest = conn_dest.cursor()
 
+official_news_channel_names = ['SBS 뉴스', 'MBCNEWS', 'JTBC News', 'KBS News', '채널A 뉴스', 'MBN News', '뉴스TVCHOSUN']
+
+official_news_channel_ids = ['UCkinYTS9IHqOEwR1Sze2JTw', 'UCF4Wxdo3inmxP-Y59wXDsFw', 'UCsU-I-vHLiaMfV_ceaYz5rQ', 'UCcQTRi69dsVYHN3exePtZ1A', 'UCfq4V1DAuaojnr2ryvWNysw', 'UCG9aFJTZ-lMCHAiO1KJsirg', 'UCWlV3Lz_55UaX4JsMj-z__Q']
+
 query = f"""
-                SELECT channel_name, freq_keywords
-                FROM news_channel
-                """
+            SELECT freq_keywords
+            FROM news_video
+            WHERE channel_id = "{official_news_channel_ids[6]}"
+        """
     
 cursor_dest.execute(query)
 keywords = cursor_dest.fetchall()
 
 processed_data = []
-for channel_name, freq_keywords in keywords:
+for keyword in keywords:
+    freq_keywords = keyword[0]
     parsed_data = ast.literal_eval('[' + freq_keywords + ']')
     noun_list = [item[0] for item in parsed_data]
     processed_data.append(noun_list)
 
 print(processed_data)
+
+# '진자'를 '확진자'로 바꾸는 함수
+def replace_word(word):
+    return '확진자' if word == '진자' else word
+
+# 이중 리스트를 순회하면서 단어 변경
+for i in range(len(processed_data)):
+    for j in range(len(processed_data[i])):
+        processed_data[i][j] = replace_word(processed_data[i][j])
+
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -97,6 +114,4 @@ from pprint import pprint
 pprint(top_topics)
 
 lda_visualization = gensimvis.prepare(model, corpus, dictionary, sort_topics=False)
-pyLDAvis.save_html(lda_visualization, 'topic_modeling_visualization.html')
-
-
+pyLDAvis.save_html(lda_visualization, 'TVCHOSUN_News_topic_modeling.html')
