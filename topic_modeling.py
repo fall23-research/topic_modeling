@@ -21,8 +21,6 @@ import pickle
 import pyLDAvis.gensim_models as gensimvis
 import pyLDAvis
 import pyLDAvis.gensim
-from gensim.models.coherencemodel import CoherenceModel
-import matplotlib.pyplot as plt
 
 
 DB_HOST = os.getenv('DB_HOST')
@@ -63,9 +61,23 @@ for keyword in keywords:
 
 print(processed_data)
 
-# '진자'를 '확진자'로 바꾸는 함수
 def replace_word(word):
-    return '확진자' if word == '진자' else word
+    word = '확진자' if word == '진자' else word
+    word = '거리두기' if word == '거리' else word
+    word = '' if word == '두기' else word
+    word = '지원금' if word == '원금' else word
+    word = '' if word == '일단' else word
+    word = '' if word == '지난' else word
+    word = '' if word == '정말' else word
+    word = '' if word == '진짜' else word
+    word = '' if word == '그냥' else word
+    word = '확진자' if word == '확정자' else word
+    word = '' if word == '저희' else word
+    word = '' if word == '여러분' else word
+    word = '대한민국' if word == '대한' else word
+    word = '' if word == '제발' else word
+    word = '아스트라제네카' if word == '아스' else word
+    return word
 
 # 이중 리스트를 순회하면서 단어 변경
 for i in range(len(processed_data)):
@@ -83,7 +95,7 @@ dictionary.filter_extremes(no_below=2, no_above=0.5)
 # bag of words: 사전 속 단어가 문장에서 몇 번 출현하는지 빈도를 세서 벡터화
 corpus = [dictionary.doc2bow(text) for text in processed_data]
 
-num_topics = 5
+num_topics = 3
 chunksize = 2000
 passes = 20
 iterations = 400
