@@ -46,7 +46,7 @@ official_news_channel_ids = ['UCkinYTS9IHqOEwR1Sze2JTw', 'UCF4Wxdo3inmxP-Y59wXDs
 query = f"""
             SELECT freq_keywords
             FROM news_video
-            WHERE channel_id = "{official_news_channel_ids[6]}"
+            WHERE channel_id = "{official_news_channel_ids[0]}"
         """
     
 cursor_dest.execute(query)
@@ -58,8 +58,6 @@ for keyword in keywords:
     parsed_data = ast.literal_eval('[' + freq_keywords + ']')
     noun_list = [item[0] for item in parsed_data]
     processed_data.append(noun_list)
-
-print(processed_data)
 
 def replace_word(word):
     word = '확진자' if word == '진자' else word
@@ -82,7 +80,9 @@ def replace_word(word):
 # 이중 리스트를 순회하면서 단어 변경
 for i in range(len(processed_data)):
     for j in range(len(processed_data[i])):
-        processed_data[i][j] = replace_word(processed_data[i][j])
+        new_word = replace_word(processed_data[i][j])
+        if new_word != '':
+            processed_data[i][j] = new_word
 
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -126,4 +126,4 @@ from pprint import pprint
 pprint(top_topics)
 
 lda_visualization = gensimvis.prepare(model, corpus, dictionary, sort_topics=False)
-pyLDAvis.save_html(lda_visualization, 'TVCHOSUN_News_topic_modeling.html')
+pyLDAvis.save_html(lda_visualization, 'SBS_News_topic_modeling.html')
